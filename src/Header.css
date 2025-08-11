@@ -1,0 +1,41 @@
+.header {
+  background: linear-gradient(to right, #80c4d4, #a1d8e8);
+  padding: 15px 0; /* more height for navbar feel */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1); /* subtle shadow */
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between; /* left, center, right */
+  align-items: center;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 25px;
+}
+
+.title {
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  font-size: 2.2rem; /* slightly bigger */
+  font-weight: bold;
+  color: black;
+  text-shadow: 1px 1px 0 white;
+}
+
+.nav-link {
+  font-size: 1.2rem; /* slightly bigger */
+  font-weight: bold;
+  text-decoration: none;
+  color: black;
+  text-shadow: 1px 1px 0 white;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #333;
+}
+
+/* Make sure title stays centered on large screens */
+.nav > .title {
+  flex: 1;
+  text-align: center;
+}
