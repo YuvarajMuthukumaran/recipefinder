@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function AuthPage({ onLogin }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -9,12 +9,14 @@ export default function AuthPage({ onLogin }) {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
+  const [notification, setNotification] = useState(null);
 
-  const toggleMode = () => {
-    setIsLogin(!isLogin);
-    setFormData({ name: "", email: "", password: "", confirmPassword: "" });
-    setErrors({});
-  };
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => setNotification(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   const validate = () => {
     const errs = {};
@@ -29,12 +31,11 @@ export default function AuthPage({ onLogin }) {
       if (!formData.confirmPassword) errs.confirmPassword = "Please confirm your password";
       else if (formData.password !== formData.confirmPassword) errs.confirmPassword = "Passwords do not match";
     }
-
     return errs;
   };
 
-  const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const showNotification = (message, type = "success") => {
+    setNotification({ message, type });
   };
 
   const handleSubmit = async (e) => {
@@ -53,32 +54,62 @@ export default function AuthPage({ onLogin }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
-
         const data = await res.json();
 
         if (res.ok) {
           if (isLogin) {
-            alert(`Welcome back, ${data.user.name}!`);
-            // Save user info (including dashboardItems) in localStorage
+            showNotification(`Welcome back, ${data.user.name}!`, "success");
             localStorage.setItem("user", JSON.stringify(data.user));
-            onLogin(data.user); // Notify App of login with user data
+            onLogin(data.user);
           } else {
-            alert("User registered! Please login.");
+            showNotification("User registered! Please login.", "success");
             setIsLogin(true);
             setFormData({ name: "", email: "", password: "", confirmPassword: "" });
           }
         } else {
-          alert(data.message);
+          showNotification(data.message || "Error occurred", "error");
         }
       } catch (err) {
-        alert("Server error");
+        showNotification("Server error", "error");
         console.error(err);
       }
     }
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "50px auto", padding: 20, border: "1px solid #ccc", borderRadius: 8, fontFamily: "Arial, sans-serif" }}>
+    <div
+      style={{
+        maxWidth: 400,
+        margin: "50px auto",
+        padding: 20,
+        border: "1px solid #ccc",
+        borderRadius: 8,
+        fontFamily: "Arial, sans-serif",
+        position: "relative",
+      }}
+    >
+      {notification && (
+        <div
+          style={{
+            position: "absolute",
+            top: 10,
+            left: "50%",
+            transform: "translateX(-50%)",
+            padding: "10px 20px",
+            borderRadius: 5,
+            color: "white",
+            backgroundColor: notification.type === "success" ? "#4caf50" : "#f44336",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+            zIndex: 1000,
+            fontWeight: "bold",
+            minWidth: 200,
+            textAlign: "center",
+          }}
+        >
+          {notification.message}
+        </div>
+      )}
+
       <h2 style={{ textAlign: "center", marginBottom: 20 }}>{isLogin ? "Login" : "Sign Up"}</h2>
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 15 }}>
         {!isLogin && (
@@ -88,7 +119,7 @@ export default function AuthPage({ onLogin }) {
               type="text"
               placeholder="Full Name"
               value={formData.name}
-              onChange={handleChange}
+              onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
               style={{ padding: 10, fontSize: 16 }}
             />
             {errors.name && <span style={{ color: "red", fontSize: 12 }}>{errors.name}</span>}
@@ -100,7 +131,7 @@ export default function AuthPage({ onLogin }) {
           type="email"
           placeholder="Email Address"
           value={formData.email}
-          onChange={handleChange}
+          onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
           style={{ padding: 10, fontSize: 16 }}
         />
         {errors.email && <span style={{ color: "red", fontSize: 12 }}>{errors.email}</span>}
@@ -110,7 +141,7 @@ export default function AuthPage({ onLogin }) {
           type="password"
           placeholder="Password"
           value={formData.password}
-          onChange={handleChange}
+          onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
           style={{ padding: 10, fontSize: 16 }}
         />
         {errors.password && <span style={{ color: "red", fontSize: 12 }}>{errors.password}</span>}
@@ -122,10 +153,12 @@ export default function AuthPage({ onLogin }) {
               type="password"
               placeholder="Confirm Password"
               value={formData.confirmPassword}
-              onChange={handleChange}
+              onChange={(e) => setFormData((prev) => ({ ...prev, confirmPassword: e.target.value }))}
               style={{ padding: 10, fontSize: 16 }}
             />
-            {errors.confirmPassword && <span style={{ color: "red", fontSize: 12 }}>{errors.confirmPassword}</span>}
+            {errors.confirmPassword && (
+              <span style={{ color: "red", fontSize: 12 }}>{errors.confirmPassword}</span>
+            )}
           </>
         )}
 
@@ -148,7 +181,11 @@ export default function AuthPage({ onLogin }) {
       <p style={{ marginTop: 20, textAlign: "center", fontSize: 14 }}>
         {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
         <button
-          onClick={toggleMode}
+          onClick={() => {
+            setIsLogin(!isLogin);
+            setFormData({ name: "", email: "", password: "", confirmPassword: "" });
+            setErrors({});
+          }}
           style={{ background: "none", border: "none", color: "#1976d2", cursor: "pointer", fontWeight: "bold" }}
         >
           {isLogin ? "Sign Up" : "Login"}
