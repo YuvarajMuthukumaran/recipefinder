@@ -44,7 +44,7 @@ export default function AuthPage({ onLogin }) {
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length === 0) {
       try {
-        const url = isLogin ? "http://localhost:5000/login" : "http://localhost:5000/signup";
+        const url = isLogin ? "https://recipefinder-m7qk.onrender.com/login" : "https://recipefinder-m7qk.onrender.com/signup";
         const body = isLogin
           ? { email: formData.email, password: formData.password }
           : { name: formData.name, email: formData.email, password: formData.password };

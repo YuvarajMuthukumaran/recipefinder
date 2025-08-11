@@ -19,7 +19,7 @@ export default function SearchAndDashboard() {
     if (!userId) return;
     const fetchItems = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/dashboard-items/${userId}`);
+        const res = await fetch(`https://recipefinder-m7qk.onrender.com/dashboard-items/${userId}`);
         if (!res.ok) throw new Error("Failed to fetch dashboard items");
         const data = await res.json();
         setDashboardItems(data.dashboardItems || []);
@@ -35,7 +35,7 @@ export default function SearchAndDashboard() {
     if (!userId) return;
     const timeout = setTimeout(async () => {
       try {
-        const res = await fetch(`http://localhost:5000/dashboard-items/${userId}`, {
+        const res = await fetch(`https://recipefinder-m7qk.onrender.com/dashboard-items/${userId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ dashboardItems }),
